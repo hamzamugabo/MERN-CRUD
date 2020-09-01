@@ -7,6 +7,7 @@ const todoRoutes = express.Router();
 const PORT = 4000;
 
 let Todo = require('./todo.model');
+let Todo2 = require('./todo.model2');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -18,8 +19,17 @@ connection.once('open', function() {
     console.log("MongoDB database connection established successfully");
 })
 
-todoRoutes.route('/').get(function(req, res) {
+todoRoutes.route('/home').get(function(req, res) {
     Todo.find(function(err, todos) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(todos);
+        }
+    });
+});
+todoRoutes.route('/').get(function(req, res) {
+    Todo2.find(function(err, todos) {
         if (err) {
             console.log(err);
         } else {
@@ -76,6 +86,20 @@ todoRoutes.route('/delete/:id').delete(function(req, res) {
 });
 
 
+// todoRoutes.route('/delete').delete(function(req, res) {
+//     Todo.find(function(err, todos) {
+//         if (!todos)
+//             res.status(404).send("data is not found");
+//         else
+            
+//             todos.remove(todos).then(()=>{ res.status(200).send("data deleted successfully");})
+//             .catch((error)=>{
+//             res.status(500).send("data not deleted successfully")})
+
+//     });
+// });
+
+
 
 
 todoRoutes.route('/add').post(function(req, res) {
@@ -87,6 +111,18 @@ todoRoutes.route('/add').post(function(req, res) {
         })
         .catch(err => {
             res.status(400).send('adding new todo failed');
+        });
+});
+
+todoRoutes.route('/register').post(function(req, res) {
+    let todo = new Todo2(req.body);
+    todo.save()
+        .then(todo => {
+            res.status(200).json({'todo': 'registered successfully'});
+            console.log(todo)
+        })
+        .catch(err => {
+            res.status(400).send('registration failed');
         });
 });
 
